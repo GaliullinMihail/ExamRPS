@@ -51,8 +51,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, LoginResponseDt
                 
         await _signInManager.UserManager.AddClaimAsync(signedUser, new Claim("Id", signedUser.Id));
         await _signInManager.UserManager.AddClaimAsync(signedUser, new Claim("Name", signedUser.UserName!));
-
-        await _signInManager.RefreshSignInAsync(signedUser);
+        
         return new Result<LoginResponseDto>(
             new LoginResponseDto(
                 LoginResponseStatus.Ok,

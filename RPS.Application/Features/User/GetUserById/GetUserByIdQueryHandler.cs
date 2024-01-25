@@ -16,6 +16,6 @@ public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, Domain.En
     public async Task<Result<Domain.Entities.User?>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(request.Id);
-        return new Result<Domain.Entities.User?>(user, user is null);
+        return new Result<Domain.Entities.User?>(user, user is not null);
     }
 }
