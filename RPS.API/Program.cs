@@ -82,7 +82,7 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.MigrateAsync();
 }
 
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<GameHub>("/chatHub");
 
 app.UseCors(testSpecific);
 
