@@ -1,20 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import HeaderApp from './Components/header';
+import LoginPage from './Pages/loginPage';
+import RegisterPage from './Pages/registerPage';
+import GamesPage from './Pages/games';
+import './assets/css/App.css';
+import Messages from './Pages/rabbit';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        
-          hehe
-          Learn React
-        
-      </header>
-    </div>
+    <>
+      <HeaderApp />
+      <Routes>
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/register' element= {<RegisterPage />}/>
+        <Route path='/games' element= {<GamesPage />}/>
+        <Route path='/rabbit' element= {<Messages />}/>
+        <Route path = '*' element={<LoginPage />} 
+        />
+      </Routes>
+    </>
   );
 }
 

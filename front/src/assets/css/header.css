@@ -1,0 +1,20 @@
+.logo-img{
+    width: 40%;
+    height: auto;
+}
+
+.navbar-brand{
+    margin-right: 0;
+    width: 30%;
+}
+
+.navbar{
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+} 
+
+.header_li {
+    color: blue;
+}
