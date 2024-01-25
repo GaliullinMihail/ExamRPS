@@ -155,6 +155,7 @@ sftp-config.json
 */*/obj
 *.pfx
 .vs
+*.user
 */.idea/
 BeaverTinder.sln.DotSettings.user
 .idea/
