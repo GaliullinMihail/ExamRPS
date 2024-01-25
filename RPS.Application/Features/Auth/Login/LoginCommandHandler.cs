@@ -10,13 +10,13 @@ namespace RPS.Application.Features.Auth.Login;
 
 public class LoginCommandHandler : ICommandHandler<LoginCommand, LoginResponseDto>
 {
-    private readonly SignInManager<User> _signInManager;
-    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<Domain.Entities.User> _signInManager;
+    private readonly UserManager<Domain.Entities.User> _userManager;
     private readonly IJwtGenerator _jwtGenerator;
 
     public LoginCommandHandler(
-        SignInManager<User> signInManager,
-        UserManager<User> userManager, 
+        SignInManager<Domain.Entities.User> signInManager,
+        UserManager<Domain.Entities.User> userManager, 
         IJwtGenerator jwtGenerator)
     {
         _signInManager = signInManager;

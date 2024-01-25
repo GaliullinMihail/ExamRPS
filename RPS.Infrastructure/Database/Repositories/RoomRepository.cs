@@ -13,9 +13,9 @@ public class RoomRepository: IRoomRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<Room>> GetAllAsync(CancellationToken cancellationToken)
+    public Task<IQueryable<Room>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await _dbContext.Rooms.ToListAsync(cancellationToken);
+        return  Task.FromResult(_dbContext.Rooms.AsQueryable());
     }
 
     public async Task AddAsync(Room room)
@@ -27,5 +27,16 @@ public class RoomRepository: IRoomRepository
     public async Task<Room?> GetByRoomIdAsync(string roomId)
     {
         return await _dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == roomId);
+    }
+
+    public async Task JoinRoomByIdAsync(string roomId, User player)
+    {
+        var room = await _dbContext.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
+        
+        if (room is null)
+            return;
+
+        room.SecondPlayerId = player.Id;
+        await _dbContext.SaveChangesAsync();
     }
 }

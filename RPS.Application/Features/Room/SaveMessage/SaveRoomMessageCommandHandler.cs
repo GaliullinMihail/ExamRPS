@@ -1,22 +1,22 @@
-﻿using RPS.Domain.Entities;
-using MassTransit;
+﻿using MassTransit;
 using MediatR;
 using RPS.Application.Dto.MediatR;
 using RPS.Application.Services.Abstractions.Cqrs.Commands;
+using RPS.Domain.Entities;
 
-namespace RPS.Application.Features.Chat.SaveMessage;
+namespace RPS.Application.Features.Room.SaveMessage;
 
-public class SaveChatMessageByDtoBusHandler: ICommandHandler<SaveChatMessageByDtoBusCommand, Unit>
+public class SaveRoomMessageCommandHandler: ICommandHandler<SaveRoomMessageCommand, Unit>
 {
     private readonly IBus _bus;
 
-    public SaveChatMessageByDtoBusHandler(IBus bus)
+    public SaveRoomMessageCommandHandler(IBus bus)
     {
         _bus = bus;
     }
     
     public async Task<Result<Unit>> Handle(
-        SaveChatMessageByDtoBusCommand request,
+        SaveRoomMessageCommand request,
         CancellationToken cancellationToken)
     {
         try

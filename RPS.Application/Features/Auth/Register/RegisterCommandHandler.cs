@@ -9,16 +9,16 @@ namespace RPS.Application.Features.Auth.Register;
 
 public class RegisterCommandHandler : ICommandHandler<RegisterCommand, RegisterResponseDto>
 {
-    private readonly UserManager<User> _userManager;
+    private readonly UserManager<Domain.Entities.User> _userManager;
 
-    public RegisterCommandHandler(UserManager<User> userManager)
+    public RegisterCommandHandler(UserManager<Domain.Entities.User> userManager)
     {
         _userManager = userManager;
     }
 
     public async Task<Result<RegisterResponseDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var user = new User
+        var user = new Domain.Entities.User
         {
             UserName = request.UserName
         };

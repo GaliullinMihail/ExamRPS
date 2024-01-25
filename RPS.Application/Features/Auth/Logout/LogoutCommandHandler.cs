@@ -7,9 +7,9 @@ namespace RPS.Application.Features.Auth.Logout;
 
 public class LogoutCommandHandler : ICommandHandler<LogoutCommand>
 {
-    private readonly SignInManager<User> _signInManager;
+    private readonly SignInManager<Domain.Entities.User> _signInManager;
 
-    public LogoutCommandHandler(SignInManager<User> signInManager)
+    public LogoutCommandHandler(SignInManager<Domain.Entities.User> signInManager)
     {
         _signInManager = signInManager;
     }
