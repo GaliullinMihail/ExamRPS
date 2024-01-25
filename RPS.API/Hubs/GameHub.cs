@@ -27,6 +27,9 @@ namespace RPS.API.Hubs
             if (!_connections.ContainsKey(roomId))
                 _connections[roomId] = new List<string>();
             _connections[roomId].Add(Context.ConnectionId);
+            
+            if (_connections[roomId].Count == 2)
+                await Clients.Group(roomId).SendAsync("StartGame");
         }
 
         public async Task LeaveFromRoom(string userId, string roomId)
