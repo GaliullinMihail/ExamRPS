@@ -33,6 +33,9 @@ services:
       MessageBroker__Password: mypa55w0rd!
       MessageBroker__Hostname: rabbitmq
       MessageBroker__Port: 5672
+      Mongo__ConnectionString: mongodb://mongo:27017
+      Mongo__DatabaseName: Metadata
+      Mongo__MetadataCollectionName: Metadata
       ConnectionStrings__RPSDatabase: Data Source=mssql;Initial Catalog=RPSDatabase;User=sa;Password=superPuperPassword!15641;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=true;
     volumes:
       - ~/.aspnet/https:/https:ro
