@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RPS.Application.Dto.ResponsesAbstraction;
 using RPS.Application.Dto.Room;
+using RPS.Application.Features.MongoDb.GetPlayerRating;
 using RPS.Application.Features.Room.AddRoom;
 using RPS.Application.Features.Room.GetAllRooms;
 using RPS.Application.Features.Room.GetRoomById;
@@ -77,8 +78,11 @@ public class GameController : Controller
             
             if (!user.IsSuccess)
                 return Json(new FailResponse(false, "You aren't player", 404));
+
+            var userRating = 
+                (await _mediator.Send(new GetPlayerRatingMongoQuery(user.Value!.UserName!))).Value;
             
-            if (room.Value!.SecondPlayerId is not null)
+            if (room.Value!.SecondPlayerId is not null && room.Value!.MaxRating >= userRating!.Rating)
                 await _mediator.Send(new JoinRoomCommand(roomId, user.Value!));
 
             return Json(room.Value);

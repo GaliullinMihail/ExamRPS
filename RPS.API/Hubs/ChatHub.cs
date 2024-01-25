@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using RPS.Application.Dto.Chat;
 using RPS.Application.Features.Room.SaveMessage;
+using RPS.Domain.Enums;
 
 namespace RPS.API.Hubs
 {
@@ -50,46 +51,20 @@ namespace RPS.API.Hubs
         // }
         
         public async Task SendGameMessage(string senderUserName, 
-            string message,
+            string sign,
             string groupName)
         {
             var room = _dbContext.Rooms.FirstOrDefault(r => r.Id == groupName);
             
-
             var sender = await _userManager.FindByNameAsync(senderUserName);
+
+            ;
             
-            Console.WriteLine("checking sender, receiver, room");
-            Console.WriteLine(room);
-            Console.WriteLine(sender);
-            
-            if (sender is null || room is null)
+            if (sender is null || room is null || !Enum.TryParse<GameSigns>(sign, out _))
                 return;
-
-            var newMessage = new Message
-            {
-                Id = Guid.NewGuid().ToString(),
-                Content = message,
-                Timestamp = DateTime.Now,
-                SenderId = sender.Id,
-                RoomId = room.Id
-            };
-
-            Console.WriteLine("saving msg");
-            _dbContext.Messages.Add(newMessage);
-            await _dbContext.SaveChangesAsync();
             
-            var dto = new ChatMessageDto()
-            {
-                Content = message,
-                RoomId = room.Id,
-                SenderId = sender.Id,
-                Timestamp = DateTime.Now
-            };
-            Console.WriteLine("sending in file consumer");
-            await _mediator.Send(new SaveRoomMessageCommand(dto));
-            Console.WriteLine("send in file consumer");
-            await Clients.Group(groupName).SendAsync("ReceivePrivateMessage", senderUserName, 
-                message);
+            await Clients.Group(groupName).SendAsync("ReceiveGameMessage", senderUserName, 
+                sign);
         }
         
         public override async Task OnConnectedAsync()

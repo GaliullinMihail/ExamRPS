@@ -20,7 +20,7 @@ public class RatingController : Controller
 
     [HttpGet]
     [Route("/{nickname}")]
-    public async Task<JsonResult> GetPlayerRating([FromQuery] string nickname)
+    public async Task<JsonResult> GetPlayerRating([FromRoute] string nickname)
     {
         return Json(await _mediator.Send(new GetPlayerRatingMongoQuery(nickname)));
     }
