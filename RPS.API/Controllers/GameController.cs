@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RPS.Application.Dto.ResponsesAbstraction;
 using RPS.Application.Dto.Room;
@@ -13,6 +15,7 @@ namespace RPS.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class GameController : Controller
 {
     private readonly IMediator _mediator;
