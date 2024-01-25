@@ -11,7 +11,7 @@ const LoginPage = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (Cookies.get('token')){
+        if (Cookies.get(TokenName)){
             navigate('/games');
         }
     }, [navigate]);

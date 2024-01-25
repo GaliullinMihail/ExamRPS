@@ -1,0 +1,26 @@
+.userEven{
+    display:flex;
+}
+
+.userOdd{
+    display:flex;
+    background-color: grey;
+}
+
+ .index{
+    display: flex;
+    width: 20%;
+    justify-content: space-around;
+} 
+
+.login {
+    display: flex;
+    width: 40%;
+    justify-content: space-around;
+}
+
+.rating {
+    display: flex;
+    width: 30%;
+    justify-content: space-around;
+}

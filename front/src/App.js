@@ -4,7 +4,7 @@ import LoginPage from './Pages/loginPage';
 import RegisterPage from './Pages/registerPage';
 import GamesPage from './Pages/games';
 import './assets/css/App.css';
-import Messages from './Pages/rabbit';
+import RatingPage from './Pages/ratingPage'
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <Route path='/login' element={<LoginPage />} />
         <Route path='/register' element= {<RegisterPage />}/>
         <Route path='/games' element= {<GamesPage />}/>
-        <Route path='/rabbit' element= {<Messages />}/>
+        <Route path='/rating' element= {<RatingPage />}/>
         <Route path = '*' element={<LoginPage />} 
         />
       </Routes>
