@@ -199,16 +199,21 @@ namespace RPS.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FirstUserId")
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirstPlayerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<int>("MaxRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Owner")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SecondUserId")
-                        .IsRequired()
+                    b.Property<string>("SecondPlayerId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

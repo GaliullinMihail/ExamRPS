@@ -23,12 +23,13 @@ public class GameController : Controller
 
     [HttpGet]
     [Route("/getAllRooms/{page}")]
-    public async Task<JsonResult> GetGamesByPage([FromQuery] int page)
+    public async Task<JsonResult> GetGamesByPage([FromRoute] int page)
     {
         return Json(await _mediator.Send(new GetAllRoomsQuery(page)));
     }
 
     [HttpPost]
+    [Route("/createGame")]
     public async Task<JsonResult> CreateGame([FromBody] CreateRoomDto model, CancellationToken cancellationToken)
     {
         try
@@ -61,7 +62,8 @@ public class GameController : Controller
     }
 
     [HttpPost]
-    public async Task<JsonResult> JoinGame([FromQuery] string roomId)
+    [Route("/joinGame/{roomId}")]
+    public async Task<JsonResult> JoinGame([FromRoute] string roomId)
     {
         try
         {

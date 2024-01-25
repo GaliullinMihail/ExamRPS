@@ -55,9 +55,11 @@ namespace RPS.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FirstUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SecondUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Owner = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaxRating = table.Column<int>(type: "int", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FirstPlayerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SecondPlayerId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
