@@ -12,8 +12,8 @@ using RPS.Infrastructure.Database;
 namespace RPS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240125134821_Init")]
-    partial class Init
+    [Migration("20240125150321_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

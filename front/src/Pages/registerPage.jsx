@@ -60,8 +60,7 @@ const RegisterPage = () => {
                 console.log(res)
             } 
             else{ 
-                Cookies.set(TokenName, res.data.message, {expires: 1}); 
-                document.location.replace(`/Games`);
+                document.location.replace(`/login`);
             } 
         }) 
         .catch((err) => { 
