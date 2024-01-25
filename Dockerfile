@@ -5,19 +5,19 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["RPC.API/RPC.API.csproj", "RPC.API/"]
-COPY ["RPC.Infrastructure/RPC.Infrastructure.csproj", "RPC.Infrastructure/"]
-COPY ["RPC.Domain/RPC.Domain.csproj", "RPC.Domain/"]
-COPY ["RPC.Application/RPC.Application.csproj", "RPC.Application/"]
-RUN dotnet restore "RPC.API/RPC.API.csproj"
+COPY ["RPS.API/RPS.API.csproj", "RPS.API/"]
+COPY ["RPS.Infrastructure/RPS.Infrastructure.csproj", "RPS.Infrastructure/"]
+COPY ["RPS.Domain/RPS.Domain.csproj", "RPS.Domain/"]
+COPY ["RPS.Application/RPS.Application.csproj", "RPS.Application/"]
+RUN dotnet restore "RPS.API/RPS.API.csproj"
 COPY . .
-WORKDIR "/src/RPC.API"
-RUN dotnet build "RPC.API.csproj" -c Release -o /app/build
+WORKDIR "/src/RPS.API"
+RUN dotnet build "RPS.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "RPC.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "RPS.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "RPC.API.dll"]
+ENTRYPOINT ["dotnet", "RPS.API.dll"]

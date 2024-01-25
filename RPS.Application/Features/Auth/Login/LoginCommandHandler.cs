@@ -31,12 +31,10 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, LoginResponseDt
             return new Result<LoginResponseDto>(
                 new LoginResponseDto(LoginResponseStatus.Fail),
                 false);
+
+        var result = await _userManager.CheckPasswordAsync(signedUser, request.Password);
         
-        var result = await _signInManager.PasswordSignInAsync(signedUser.UserName!, request.Password, false,
-            lockoutOnFailure: false);
-
-
-        if (!result.Succeeded) 
+        if (!result) 
             return new Result<LoginResponseDto>(
                 new LoginResponseDto(LoginResponseStatus.Fail),
                 false);

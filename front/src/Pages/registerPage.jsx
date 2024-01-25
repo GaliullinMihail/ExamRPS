@@ -55,8 +55,9 @@ const RegisterPage = () => {
             password: password, 
         }) 
         .then((res) => { 
+            console.log(res);
             if (!res.data.successful){ 
-                alert("Ошибка при регистрации");
+                console.log(res)
             } 
             else{ 
                 Cookies.set(TokenName, res.data.message, {expires: 1}); 
@@ -64,6 +65,7 @@ const RegisterPage = () => {
             } 
         }) 
         .catch((err) => { 
+            console.log(err);
             alert("Ошибка при регистрации");
         }); 
     }; 
