@@ -11,7 +11,7 @@ const RatingPage = () => {
     const token = Cookies.get(TokenName);
 
     useEffect(() => { 
-        axiosInstance.get(`/all`,
+        axiosInstance.get(`/rating/all`,
         {
            headers:{
                Authorization: `Bearer ${token}`,

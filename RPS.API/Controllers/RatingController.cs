@@ -19,24 +19,16 @@ public class RatingController : Controller
     }
 
     [HttpGet]
-    [Route("/{nickname}")]
+    [Route("/rating/{nickname}")]
     public async Task<JsonResult> GetPlayerRating([FromRoute] string nickname)
     {
         return Json(await _mediator.Send(new GetPlayerRatingMongoQuery(nickname)));
     }
     
     [HttpGet]
-    [Route("/all")]
+    [Route("/rating/all")]
     public async Task<JsonResult> GetAllPlayersRating()
     {
         return Json(await _mediator.Send(new GetAllPlayersRatingQuery()));
-    }
-    
-    [HttpPost]
-    [Route("/update")]
-    public async Task<IActionResult> PlayerScore([FromBody] UpdatePlayerRatingDto model)
-    {
-        await _mediator.Send(new UpdatePlayerRatingMongoCommand(model));
-        return Ok();
     }
 }
