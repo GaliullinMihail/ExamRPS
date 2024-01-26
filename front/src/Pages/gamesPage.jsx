@@ -79,7 +79,7 @@ const GamesPage = () => {
                     {
                         games.map(game => (
                             <div>
-                            {uName !== game.owner && uName !== game.secondPlayerId &&
+                            {uName !== game.owner && uId !== game.secondPlayerId &&
                             <div className="game" key = {game.id}> 
                                 <div className="game_id">id : { game.id } </div>
                                 <div className="game_owner">owner : { game.owner } </div>
