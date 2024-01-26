@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { axiosInstance } from "../Components/axios_server";
 import "../assets/css/gamesPage.css"
 import Popup from "../Components/Popup";
+import {jwtDecode} from "jwt-decode";
 
 
 const GamesPage = () => {
@@ -13,13 +14,8 @@ const GamesPage = () => {
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [games, setGames] = useState([])
     const [loading, setLoading] = useState(false);
-
-    const fetchGames = (e) => {
-        console.log("fetchgames")
-        if (e.currentTarget.scrollTop >= 185 + numberOfFetches * 450) {
-            setNumberOfFetches(numberOfFetches+1);
-        }
-    }
+    const uName = jwtDecode(token).Name;
+    const uId = jwtDecode(token).Id;
 
     useEffect(() => {
         setLoading(true);
@@ -72,7 +68,7 @@ const GamesPage = () => {
     }, [handleScroll])
 
     return (    
-        <div className='main-content' onScroll={(e) => fetchGames(e) }>
+        <div className='main-content'>
             <div className='buttons'>
                 <button className="button_create_game" onClick={(e) => setPopupOpen(true)}>Create game</button>
                 {isPopupOpen && <Popup onClose={togglePopup} />}
@@ -82,13 +78,17 @@ const GamesPage = () => {
                 <div>
                     {
                         games.map(game => (
+                            <div>
+                            {uName !== game.owner && uName !== game.secondPlayerId &&
                             <div className="game" key = {game.id}> 
                                 <div className="game_id">id : { game.id } </div>
                                 <div className="game_owner">owner : { game.owner } </div>
                                 <div className="game_time">creation time : {ParseTime(new Date(game.creationTime))} </div>
                                 <div className="game_rating">max rating : { game.maxRating } </div>
-                                <div className="game_oponnent">oponnent : {game.secondPlayerId? game.secondPlayerId : "No"} </div>
+                                <div className="game_oponnent">oponnent : {game.secondPlayerId? "Yes" : "No"} </div>
                                 <button onClick={() => navigate('/game/' + game.id)}> Join game </button>
+                            </div>
+                            }
                             </div>
                         ))
                     }
