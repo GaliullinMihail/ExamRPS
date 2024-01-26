@@ -14,24 +14,9 @@ const GamesPage = () => {
     const [games, setGames] = useState([])
 
     const fetchGames = (e) => {
-        console.log(e.currentTarget.scrollTop)
-        if (e.currentTarget.scrollTop >= -1) {
-            // if (true) {
-
-            axiosInstance.get(`/getAllRooms/` + numberOfFetches,
-        {
-           headers:{
-               Authorization: `Bearer ${token}`,
-               Accept : "application/json"
-           }
-        }) 
-        .then(response => {
-            console.log(response.data.value);
-            setGames(prev => [ ...prev, ...response.data.value])
-            setNumberOfFetches(numberOfFetches + 1)
-        })
-        .catch()
-            
+        console.log("fetchgames")
+        if (e.currentTarget.scrollTop >= 185 + numberOfFetches * 450) {
+            setNumberOfFetches(numberOfFetches+1);
         }
     }
 
@@ -44,13 +29,11 @@ const GamesPage = () => {
            }
         }) 
         .then(response => {
-            console.log(response.data.value);
             setGames(prev => [ ...prev, ...response.data.value])
-            setNumberOfFetches(numberOfFetches + 1)
         })
         .catch()
             
-        }, [])
+        }, [numberOfFetches])
 
     useEffect(() => {
         if (!token){
@@ -58,30 +41,36 @@ const GamesPage = () => {
         }
     }, [navigate, token])
 
-    function CreateGame(){
-
-    }
 
     const togglePopup = () => {
         setPopupOpen(!isPopupOpen);
       };
 
-    return (
-        <div className='main-content' onScroll={e => fetchGames(e) }>
+    function ParseTime(time){
+        const hours = time.getHours();
+        const minutes = time.getMinutes();
+        const second = time.getSeconds();
+        return hours + ':'+ minutes + ':' + second;
+    }
+
+    return (    
+        <div className='main-content' onScroll={(e) => fetchGames(e) }>
             <div className='buttons'>
-                <button onClick={(e) => setPopupOpen(true)}>Create game</button>
+                <button className="button_create_game" onClick={(e) => setPopupOpen(true)}>Create game</button>
                 {isPopupOpen && <Popup onClose={togglePopup} />}
             </div>
-            <div className='items-container'>
-                <div className='items-container-title'>Available games</div>
+            <div className='games_container'>
+                <div className='games_container_title'>Available games</div>
                 <div>
                     {
                         games.map(game => (
-                            <div key={ game.id } className='item'>
-                                <div>{ game.id }</div>
-                                <div>{ game.username }</div>
-                                <div>{ game.createdAt }</div>
-                                <div className='enter-message'>{ game.enterMessage }</div>
+                            <div className="game" key = {game.id}> 
+                                <div className="game_id">id : { game.id } </div>
+                                <div className="game_owner">owner : { game.owner } </div>
+                                <div className="game_time">creation time : {ParseTime(new Date(game.creationTime))} </div>
+                                <div className="game_rating">max rating : { game.maxRating } </div>
+                                <div className="game_oponnent">oponnent : {game.secondPlayerId? game.secondPlayerId : "No"} </div>
+                                <button onClick={() => navigate('/game/' + game.id)}> Join game </button>
                             </div>
                         ))
                     }
