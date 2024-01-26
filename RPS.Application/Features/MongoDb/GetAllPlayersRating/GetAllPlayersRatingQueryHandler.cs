@@ -23,7 +23,7 @@ public class GetAllPlayersRatingQueryHandler
         {
             return new Result<List<PlayerRatingDto>>(
                 (await _mongoClient.GetAsync())
-                .OrderBy(pr => pr.Rating)
+                .OrderByDescending(pr => pr.Rating)
                 .ToList(),
                 true);
         }
