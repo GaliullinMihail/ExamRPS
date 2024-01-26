@@ -69,6 +69,24 @@ const GamesPage = () => {
         }
     }, [handleScroll])
 
+    const JoinGame = (id) =>  {
+        axiosInstance.post('/joinGame/' + id, {},
+        {
+            headers:{
+                Authorization: `Bearer ${token}`,
+                Accept : "application/json"
+            }
+        }).then(response => {
+            if(response.data.successful)
+            {
+                navigate('/game/' + id)
+                return;
+            }
+            alert("вы не можете присоединиться к комнате")
+            console.log(response);
+        })
+    }
+
     return (    
         <div className='main-content'>
             <div className='buttons'>
@@ -88,7 +106,7 @@ const GamesPage = () => {
                                 <div className="game_time">creation time : {ParseTime(new Date(game.creationTime))} </div>
                                 <div className="game_rating">max rating : { game.maxRating } </div>
                                 <div className="game_oponnent">oponnent : {game.secondPlayerId? "Yes" : "No"} </div>
-                                <button onClick={() => navigate('/game/' + game.id)}> Join game </button>
+                                <button onClick={() => JoinGame(game.id)}> Join game </button>
                             </div>
                             }
                             </div>
