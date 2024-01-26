@@ -90,7 +90,6 @@ namespace RPS.API.Hubs
                         WinnerNickName = secondPlayer!.UserName!,
                         LooserNickName = firstPlayer!.UserName!
                     };
-                    // await _bus.Send(gameResult);
                     break;
                 case 0:
                     gameResult = new GameResultDto
@@ -99,7 +98,6 @@ namespace RPS.API.Hubs
                         WinnerNickName = secondPlayer!.UserName!,
                         LooserNickName = firstPlayer!.UserName!
                     };
-                    // await _bus.Send(gameResult);
                     break;
                 default:
                     gameResult = new GameResultDto
@@ -108,9 +106,11 @@ namespace RPS.API.Hubs
                         WinnerNickName = firstPlayer!.UserName!,
                         LooserNickName = secondPlayer!.UserName!
                     };
-                    // await _bus.Send(gameResult);
                     break;
             }
+            
+            await _bus.Publish(gameResult);
+            
             await Clients.Group(roomId).SendAsync("ReceiveResultMessage", firstPlayer!.UserName,
                 secondPlayer!.UserName,
                 result);

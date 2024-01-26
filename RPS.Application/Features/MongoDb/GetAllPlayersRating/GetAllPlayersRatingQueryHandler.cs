@@ -29,7 +29,7 @@ public class GetAllPlayersRatingQueryHandler
         }
         catch (Exception e)
         {
-            return new Result<List<PlayerRatingDto>>(null, false);
+            return new Result<List<PlayerRatingDto>>(null, false, e.Message);
         }
     }
 }
