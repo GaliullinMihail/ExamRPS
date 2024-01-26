@@ -18,7 +18,7 @@ public class GetAllRoomsQueryHandler : IQueryHandler<GetAllRoomsQuery, IEnumerab
     {
         return new Result<IEnumerable<Domain.Entities.Room>>(
             (await _repositoryManager.RoomRepository.GetAllAsync(cancellationToken))
-            .OrderBy(r => r.CreationTime)
+            .OrderByDescending(r => r.CreationTime)
             .ThenBy(r => r.SecondPlayerId)
             .Skip(request.PageNumber * StaticData.GamesPerPage)
             .Take(StaticData.GamesPerPage)
