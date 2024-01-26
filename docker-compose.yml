@@ -23,6 +23,7 @@ services:
     depends_on:
       - mssql
       - rabbitmq
+      - mongo
     build:
       context: ./
       dockerfile: Dockerfile

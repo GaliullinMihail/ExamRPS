@@ -27,8 +27,8 @@ namespace RPS.API.Hubs
             if (!StaticData.GameHubConnections.ContainsKey(roomId))
                 StaticData.GameHubConnections[roomId] = new List<string>();
             StaticData.GameHubConnections[roomId].Add(Context.ConnectionId);
-            
-            if (StaticData.GameHubConnections[roomId].Count == 2)
+            var room = (await _mediator.Send(new GetRoomByIdQuery(roomId))).Value;
+            if (StaticData.GameHubConnections[roomId].Count >= 2 && room!.SecondPlayerId is not null)
                 await Clients.Group(roomId).SendAsync("StartGame");
         }
 
@@ -41,7 +41,9 @@ namespace RPS.API.Hubs
             var room = roomResult.Value;
             if (room!.FirstPlayerId != userId && room.SecondPlayerId != userId)
                 return;
-
+            
+            await Clients.Group(roomId).SendAsync("EndGame");
+            
             foreach (var connectionId in StaticData.GameHubConnections[roomId])
             {
                 await Groups.RemoveFromGroupAsync(connectionId, roomId);
