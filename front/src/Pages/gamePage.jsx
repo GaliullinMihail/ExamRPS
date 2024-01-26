@@ -6,6 +6,7 @@ import * as signalR from "@microsoft/signalr";
 import { useNavigate, useLocation } from "react-router-dom";
 import ServerURL from '../Components/server_url';
 import './../assets/css/gamePage.css'
+import { clear } from '@testing-library/user-event/dist/clear.js';
 
 const GamePage = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const GamePage = () => {
     const [seconds, setSeconds] = useState(0);
     const [oponnentExists, setOponnentExists] = useState(false);
     const [room, setRoom] = useState(null);
+    const [isWatcher, setIsWatcher] = useState(true);
 
     useEffect(() => {
         if (!token){
@@ -49,7 +51,7 @@ const GamePage = () => {
             connection.invoke("SendResultMessage", result, `${room.id}`);
         }
         
-        setIsWaitingForAny(false);
+        // setIsWaitingForAny(false);
         
         // RefreshGame();
       };
@@ -66,11 +68,28 @@ const GamePage = () => {
         })})
         }
 
+        newConnection.off('ReceiveGameMessage')
+        newConnection.off('StartGame')
+        newConnection.off('ReceiveResultMessage')
+
+
         newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
-            
-            if (senderUserId !== uid)
+
+            if (isWatcher)
+            {
+                if (senderUserId !== room.firstPlayerId)
+                {
+                    setPlayerChoice(sign);
+                }
+                else
+                {
+                    setOpponentChoice(sign);
+                }
+            } 
+            else if (senderUserId !== uid)
             {
                 setOpponentChoice(sign);
+                console.log('playerChoice null',playerChoice === '')
                 if (playerChoice !== '')
                     calculateResult(playerChoice, sign);
             }
@@ -82,7 +101,6 @@ const GamePage = () => {
 
         newConnection.on("ReceiveResultMessage", function (firstPlayerName, secondPlayerName, result){
             const isOwner = uid === room.firstPlayerId;
-            console.log("Я ПОЛУЧИЛ РЕЗ","result",isOwner,firstPlayerName, secondPlayerName, result)
             if (result === 1) {
                 setWinner(firstPlayerName);
                 setWinnerChoice(isOwner ? playerChoice : opponentChoice);
@@ -94,6 +112,20 @@ const GamePage = () => {
                 setWinnerChoice(isOwner ? opponentChoice : playerChoice);
                 setLooser(firstPlayerName);
             }
+
+            setIsWaitingForAny(false);
+
+            setTimeout(() => {
+                setIsWaitingForAny(true);
+                setWinner('');
+                setLooser('');
+                setIsDraw(false);
+                setSeconds(0);
+                setOponnentExists(true);
+                setPlayerChoice('');
+                setOpponentChoice('');
+                setWinnerChoice('');
+              }, 3000);
         });
 
         setConnection(newConnection);
@@ -116,7 +148,9 @@ const GamePage = () => {
                 Accept : "application/json"
             }
          }).then(res => {
+            console.log(res.data.value);
             setRoom(res.data.value);
+            setIsWatcher(uid !== res.data.value.firstPlayerId && uid !== res.data.value.secondPlayerId)
          });
     },[location.pathname, token, callbackSignalR])
 
@@ -125,6 +159,7 @@ const GamePage = () => {
     const SendGameMessage = (value) => {
         setPlayerChoice(value);
         connection.invoke("SendGameMessage", `${uid}`, `${value}`, `${room.id}`);
+        console.log('oponnentChoice null',opponentChoice === '');
         if (opponentChoice !== '')
             calculateResult(value, opponentChoice);
     }
@@ -138,6 +173,9 @@ const GamePage = () => {
         setIsDraw(false);
         setSeconds(0);
         setOponnentExists(true);
+        setPlayerChoice('');
+        setOpponentChoice('');
+        setWinnerChoice('');
     }
 
     // useEffect(() => {
@@ -164,17 +202,23 @@ const GamePage = () => {
         <>
             {oponnentExists? 
             <div>
-                <button name = 'gameButton' onClick={() => SendGameMessage("Rock")} value = "Rock">
-                    Rock
-                </button>
-                <button name = 'gameButton' onClick={() => SendGameMessage("Paper")} value = "Paper">
-                    Paper
-                </button>
-                <button name = 'gameButton' onClick={() => SendGameMessage("Scissors")} value = "Scissors">
-                    Scissors
-                </button>
                 {isWaitingForAny
-                    ? <p>Waiting for players to make a choice...</p>
+                    ? <div>
+                            {isWatcher? <></>
+                            :
+                            <div> 
+                            <button name = 'gameButton' onClick={() => SendGameMessage("Rock")} value = "Rock">
+                                Rock
+                            </button>
+                            <button name = 'gameButton' onClick={() => SendGameMessage("Paper")} value = "Paper">
+                                Paper
+                            </button>
+                            <button name = 'gameButton' onClick={() => SendGameMessage("Scissors")} value = "Scissors">
+                                Scissors
+                            </button>                       
+                            <p>Waiting for players to make a choice...</p>
+                            </div>}
+                        </div>
                     : isDraw 
                         ?
                         <>
@@ -183,7 +227,7 @@ const GamePage = () => {
                         :
                         <>
                             <p className='green'> {winner} is Winner! (+3), choice: {winnerChoice}</p>
-                            <p className='red'> {looser} is Looser! (-1), choise: {winnerChoice === playerChoice ? opponentChoice: playerChoice}</p>
+                            <p className='red'> {looser} is Looser! (-1), choice: {winnerChoice === playerChoice ? opponentChoice: playerChoice}</p>
                         </>
                 }
             </div>
