@@ -21,7 +21,11 @@ public class GetAllPlayersRatingQueryHandler
     {
         try
         {
-            return new Result<List<PlayerRatingDto>>(await _mongoClient.GetAsync(), true);
+            return new Result<List<PlayerRatingDto>>(
+                (await _mongoClient.GetAsync())
+                .OrderBy(pr => pr.Rating)
+                .ToList(),
+                true);
         }
         catch (Exception e)
         {
