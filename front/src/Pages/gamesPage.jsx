@@ -12,6 +12,7 @@ const GamesPage = () => {
     const [numberOfFetches, setNumberOfFetches] = useState(0)
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [games, setGames] = useState([])
+    const [loading, setLoading] = useState(false);
 
     const fetchGames = (e) => {
         console.log("fetchgames")
@@ -21,6 +22,7 @@ const GamesPage = () => {
     }
 
     useEffect(() => {
+        setLoading(true);
         axiosInstance.get(`/getAllRooms/` + numberOfFetches,
         {
            headers:{
@@ -30,6 +32,7 @@ const GamesPage = () => {
         }) 
         .then(response => {
             setGames(prev => [ ...prev, ...response.data.value])
+            setLoading(false);
         })
         .catch()
             
@@ -53,6 +56,21 @@ const GamesPage = () => {
         return hours + ':'+ minutes + ':' + second;
     }
 
+    const handleScroll= () => {
+        const bottom = Math.ceil(window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight;
+
+        if(bottom && !loading){
+            setNumberOfFetches(prev => prev +1);
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return() => {
+            window.removeEventListener('scroll', handleScroll);
+        }
+    }, [handleScroll])
+
     return (    
         <div className='main-content' onScroll={(e) => fetchGames(e) }>
             <div className='buttons'>
@@ -75,6 +93,7 @@ const GamesPage = () => {
                         ))
                     }
                 </div>
+                {loading && <p>Loading ...</p>}
             </div>
         </div>
     )
