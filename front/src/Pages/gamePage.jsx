@@ -50,10 +50,6 @@ const GamePage = () => {
 
             connection.invoke("SendResultMessage", result, `${room.id}`);
         }
-        
-        // setIsWaitingForAny(false);
-        
-        // RefreshGame();
       };
 
     const callbackSignalR = useCallback((roomData) => {
@@ -71,7 +67,9 @@ const GamePage = () => {
         newConnection.off('ReceiveGameMessage')
         newConnection.off('StartGame')
         newConnection.off('ReceiveResultMessage')
-
+        // newConnection.off('LeaveFromRoom')
+        
+        // newConnection.on('LeaveFromRoom', function())
 
         newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
 
@@ -89,7 +87,6 @@ const GamePage = () => {
             else if (senderUserId !== uid)
             {
                 setOpponentChoice(sign);
-                console.log('playerChoice null',playerChoice === '')
                 if (playerChoice !== '')
                     calculateResult(playerChoice, sign);
             }
@@ -100,6 +97,11 @@ const GamePage = () => {
         });
 
         newConnection.on("ReceiveResultMessage", function (firstPlayerName, secondPlayerName, result){
+            if(isWatcher && !oponnentExists)
+            {
+                console.log("refresh");
+                RefreshGame();
+            }
             const isOwner = uid === room.firstPlayerId;
             if (result === 1) {
                 setWinner(firstPlayerName);
@@ -116,28 +118,12 @@ const GamePage = () => {
             setIsWaitingForAny(false);
 
             setTimeout(() => {
-                setIsWaitingForAny(true);
-                setWinner('');
-                setLooser('');
-                setIsDraw(false);
-                setSeconds(0);
-                setOponnentExists(true);
-                setPlayerChoice('');
-                setOpponentChoice('');
-                setWinnerChoice('');
+                RefreshGame();
               }, 3000);
         });
 
         setConnection(newConnection);
-        // document.getElementById("sendButton").addEventListener("click", function (event) { 
-        //     var message = document.getElementById("messageInput").value;
-        //     document.getElementById("messageInput").value ='';
-        //     connection.invoke("SendGameMessage", `${roomData.senderName}`, message, `${roomData.receiverName}`, `${roomData.roomName}`).catch(function (err) { 
-        //         return console.error(err.toString());
-        //     });
-        //     event.preventDefault();
-        // });
-    }, [uid, opponentChoice, playerChoice])
+    }, [uid, opponentChoice, playerChoice, oponnentExists])
 
     useEffect(() => {
         callbackSignalR(location.pathname.split('/game/'[0])[2]);
@@ -148,9 +134,11 @@ const GamePage = () => {
                 Accept : "application/json"
             }
          }).then(res => {
-            console.log(res.data.value);
             setRoom(res.data.value);
             setIsWatcher(uid !== res.data.value.firstPlayerId && uid !== res.data.value.secondPlayerId)
+            window.addEventListener('beforeunload', () => {
+                connection.invoke('LeaveFromRoom', `${uid}`, `${location.pathname.split('/game/'[0])[2]}`)
+            })
          });
     },[location.pathname, token, callbackSignalR])
 
@@ -159,7 +147,6 @@ const GamePage = () => {
     const SendGameMessage = (value) => {
         setPlayerChoice(value);
         connection.invoke("SendGameMessage", `${uid}`, `${value}`, `${room.id}`);
-        console.log('oponnentChoice null',opponentChoice === '');
         if (opponentChoice !== '')
             calculateResult(value, opponentChoice);
     }
@@ -167,9 +154,9 @@ const GamePage = () => {
     
 
     const RefreshGame = () => {
+        setIsWaitingForAny(true);
         setWinner('');
         setLooser('');
-        setIsWaitingForAny(true);
         setIsDraw(false);
         setSeconds(0);
         setOponnentExists(true);
@@ -178,33 +165,13 @@ const GamePage = () => {
         setWinnerChoice('');
     }
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //       setSeconds(prevSeconds => prevSeconds + 1);
-    //     }, 1000);
-    
-    //     if (seconds === 10 && (playerChoice === '' || opponentChoice === '')) {
-    //         if (playerChoice === '')
-    //         {
-    //             setPlayerChoice('Scissors');
-    //         }
-    //         if (opponentChoice === '')
-    //         {
-    //             setOpponentChoice('Scissors');
-    //         }
-
-    //     }
-    
-    //     return () => clearInterval(interval);
-    //   }, [seconds, opponentChoice, playerChoice]);
-
     return(
         <>
             {oponnentExists? 
             <div>
                 {isWaitingForAny
                     ? <div>
-                            {isWatcher? <></>
+                            {isWatcher || playerChoice != ''? <></>
                             :
                             <div> 
                             <button name = 'gameButton' onClick={() => SendGameMessage("Rock")} value = "Rock">
@@ -216,8 +183,8 @@ const GamePage = () => {
                             <button name = 'gameButton' onClick={() => SendGameMessage("Scissors")} value = "Scissors">
                                 Scissors
                             </button>                       
-                            <p>Waiting for players to make a choice...</p>
                             </div>}
+                            <p>Waiting for players to make a choice...</p>
                         </div>
                     : isDraw 
                         ?
