@@ -30,18 +30,17 @@ const GamePage = () => {
         }
     }, [navigate, token])
 
-    const calculateResult = () => {
+    const calculateResult = (myChoice, enemyChoice) => {
         if (uid === room.firstPlayerId)
         {
-            console.log('Я создатель команты и отправляю на бэк ', 'мой выбор', playerChoice, 'выбор противника', opponentChoice)
             let result = 0;
-            if (playerChoice === "Rock" && opponentChoice === "Scissors") {
+            if (myChoice === "Rock" && enemyChoice === "Scissors") {
                 result = 1;
-            } else if (playerChoice === "Scissors" && opponentChoice === "Paper") {
+            } else if (myChoice === "Scissors" && enemyChoice === "Paper") {
                 result = 1;
-            } else if (playerChoice === "Paper" && opponentChoice === "Rock") {
+            } else if (myChoice === "Paper" && enemyChoice === "Rock") {
                 result = 1;
-            } else if (playerChoice === opponentChoice) {
+            } else if (myChoice === enemyChoice) {
                 result = 0;
             } else {
                 result = -1;
@@ -56,19 +55,24 @@ const GamePage = () => {
       };
 
     const callbackSignalR = useCallback((roomData) => {
-        
-        let newConnection = new signalR.HubConnectionBuilder().withUrl(`${ServerURL}/ChatHub`).build();
+        let newConnection = connection;
+
+        if(!connection || connection.state === signalR.HubConnectionState.Disconnected)
+        {
+            newConnection = new signalR.HubConnectionBuilder().withUrl(`${ServerURL}/ChatHub`).build();
+            newConnection.start().then(res => {newConnection.invoke("ConnectToRoom", `${roomData}`)
+            .catch(function (err) {
+            return console.error(err.toString());
+        })})
+        }
 
         newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
             
             if (senderUserId !== uid)
             {
                 setOpponentChoice(sign);
-                console.log("МОЙ ВЫБОР ");
-                console.log(playerChoice)
-                console.log("ВЫБОР МОЕГО ПРОТИВНИКА" + sign);
                 if (playerChoice !== '')
-                    calculateResult();
+                    calculateResult(playerChoice, sign);
             }
         });
 
@@ -92,11 +96,6 @@ const GamePage = () => {
             }
         });
 
-        newConnection.start().then(res => {newConnection.invoke("ConnectToRoom", `${roomData}`)
-        .catch(function (err) {
-            return console.error(err.toString());
-        })});
-
         setConnection(newConnection);
         // document.getElementById("sendButton").addEventListener("click", function (event) { 
         //     var message = document.getElementById("messageInput").value;
@@ -106,7 +105,7 @@ const GamePage = () => {
         //     });
         //     event.preventDefault();
         // });
-    }, [uid])
+    }, [uid, opponentChoice, playerChoice])
 
     useEffect(() => {
         callbackSignalR(location.pathname.split('/game/'[0])[2]);
@@ -127,7 +126,7 @@ const GamePage = () => {
         setPlayerChoice(value);
         connection.invoke("SendGameMessage", `${uid}`, `${value}`, `${room.id}`);
         if (opponentChoice !== '')
-            calculateResult();
+            calculateResult(value, opponentChoice);
     }
     
     
