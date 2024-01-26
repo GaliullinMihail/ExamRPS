@@ -16,96 +16,24 @@ const GamePage = () => {
     const [isDraw, setIsDraw] = useState(false);
     const [playerChoice, setPlayerChoice] = useState('');
     const [opponentChoice, setOpponentChoice] = useState('');
-    const [roomId, setRoomId] = useState(null);
     const [winner, setWinner] = useState('');
     const [winnerChoice, setWinnerChoice] = useState('');
     const [looser, setLooser] = useState('');
     const [connection, setConnection] = useState(null);
     const [seconds, setSeconds] = useState(0);
+    const [oponnentExists, setOponnentExists] = useState(false);
+    const [room, setRoom] = useState(null);
 
     useEffect(() => {
         if (!token){
             navigate("/login");
         }
-    }, [navigate])
+    }, [navigate, token])
 
-    useEffect(() => {
-        setRoomId(location.pathname.split('/game/'[1]));
-        callbackSignalR(location.pathname.split('/game/'[1]));
-    },[])
-
-    const callbackSignalR = useCallback((roomData) => {
-        
-        let newConnection = new signalR.HubConnectionBuilder().withUrl(`${ServerURL}/ChatHub`).build();
-
-        newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
-            setOpponentChoice(sign);
-            if (playerChoice !== '')
-                calculateResult();
-        });
-
-        newConnection.on("StartGame", function (){
-            RefreshGame();
-        });
-
-        newConnection.on("ReceiveResultMessage", function (firstPlayerName, secondPlayerName, result){
-            if (result === 1) {
-                setWinner(firstPlayerName);
-                setWinnerChoice(playerChoice);
-                setLooser(secondPlayerName);
-            } else if (result === 0) {
-                setIsDraw(true);
-            } else {
-                setWinner(secondPlayerName);
-                setWinnerChoice(opponentChoice);
-                setLooser(firstPlayerName);
-            }
-        });
-
-        newConnection.start().then(res => {newConnection.invoke("ConnectToRoom", `${roomData}`)
-        .catch(function (err) {
-            return console.error(err.toString());
-        })});
-
-        const buttons = document.getElementsByName('gameButton');
-        buttons.forEach(button => {
-            button.addEventListener("click", function (event) {
-                setPlayerChoice(button.value);
-        
-                newConnection.invoke("SendGameMessage", `${roomData.senderName}`, `${button.value}`, `${roomData.roomName}`)
-                    .catch(function(err){
-                        return console.error(err.toString());
-                    });
-
-                if (opponentChoice !== '')
-                    calculateResult();
-
-                event.preventDefault();
-            });
-        })
-        setConnection(newConnection);
-        // document.getElementById("sendButton").addEventListener("click", function (event) { 
-        //     var message = document.getElementById("messageInput").value;
-        //     document.getElementById("messageInput").value ='';
-        //     connection.invoke("SendGameMessage", `${roomData.senderName}`, message, `${roomData.receiverName}`, `${roomData.roomName}`).catch(function (err) { 
-        //         return console.error(err.toString());
-        //     });
-        //     event.preventDefault();
-        // });
-    }, [])
-    
     const calculateResult = () => {
-        let room = axiosInstance.get(`/games/${roomId}`,
+        if (uid === room.firstPlayerId)
         {
-            headers:{
-                Authorization: `Bearer ${token}`,
-                Accept : "application/json"
-            }
-         });
-
-        if (uid === room.value.firstPlayerId)
-        {
-            
+            console.log('Я создатель команты и отправляю на бэк ', 'мой выбор', playerChoice, 'выбор противника', opponentChoice)
             let result = 0;
             if (playerChoice === "Rock" && opponentChoice === "Scissors") {
                 result = 1;
@@ -119,15 +47,90 @@ const GamePage = () => {
                 result = -1;
             }
 
-            connection.invoke("SendResultMessage", result, `${roomId}`);
+            connection.invoke("SendResultMessage", result, `${room.id}`);
         }
         
         setIsWaitingForAny(false);
         
-        const timeout = setTimeout(() => { }, 6000);
-        
-        RefreshGame();
+        // RefreshGame();
       };
+
+    const callbackSignalR = useCallback((roomData) => {
+        
+        let newConnection = new signalR.HubConnectionBuilder().withUrl(`${ServerURL}/ChatHub`).build();
+
+        newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
+            
+            if (senderUserId !== uid)
+            {
+                setOpponentChoice(sign);
+                console.log("МОЙ ВЫБОР ");
+                console.log(playerChoice)
+                console.log("ВЫБОР МОЕГО ПРОТИВНИКА" + sign);
+                if (playerChoice !== '')
+                    calculateResult();
+            }
+        });
+
+        newConnection.on("StartGame", function (){
+            RefreshGame();
+        });
+
+        newConnection.on("ReceiveResultMessage", function (firstPlayerName, secondPlayerName, result){
+            const isOwner = uid === room.firstPlayerId;
+            console.log("Я ПОЛУЧИЛ РЕЗ","result",isOwner,firstPlayerName, secondPlayerName, result)
+            if (result === 1) {
+                setWinner(firstPlayerName);
+                setWinnerChoice(isOwner ? playerChoice : opponentChoice);
+                setLooser(secondPlayerName);
+            } else if (result === 0) {
+                setIsDraw(true);
+            } else {
+                setWinner(secondPlayerName);
+                setWinnerChoice(isOwner ? opponentChoice : playerChoice);
+                setLooser(firstPlayerName);
+            }
+        });
+
+        newConnection.start().then(res => {newConnection.invoke("ConnectToRoom", `${roomData}`)
+        .catch(function (err) {
+            return console.error(err.toString());
+        })});
+
+        setConnection(newConnection);
+        // document.getElementById("sendButton").addEventListener("click", function (event) { 
+        //     var message = document.getElementById("messageInput").value;
+        //     document.getElementById("messageInput").value ='';
+        //     connection.invoke("SendGameMessage", `${roomData.senderName}`, message, `${roomData.receiverName}`, `${roomData.roomName}`).catch(function (err) { 
+        //         return console.error(err.toString());
+        //     });
+        //     event.preventDefault();
+        // });
+    }, [uid])
+
+    useEffect(() => {
+        callbackSignalR(location.pathname.split('/game/'[0])[2]);
+        axiosInstance.get(`/games/`+location.pathname.split('/game/'[0])[2],
+        {
+            headers:{
+                Authorization: `Bearer ${token}`,
+                Accept : "application/json"
+            }
+         }).then(res => {
+            setRoom(res.data.value);
+         });
+    },[location.pathname, token, callbackSignalR])
+
+    
+
+    const SendGameMessage = (value) => {
+        setPlayerChoice(value);
+        connection.invoke("SendGameMessage", `${uid}`, `${value}`, `${room.id}`);
+        if (opponentChoice !== '')
+            calculateResult();
+    }
+    
+    
 
     const RefreshGame = () => {
         setWinner('');
@@ -135,38 +138,40 @@ const GamePage = () => {
         setIsWaitingForAny(true);
         setIsDraw(false);
         setSeconds(0);
+        setOponnentExists(true);
     }
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-          setSeconds(prevSeconds => prevSeconds + 1);
-        }, 1000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //       setSeconds(prevSeconds => prevSeconds + 1);
+    //     }, 1000);
     
-        if (seconds === 10 && (playerChoice === '' || opponentChoice === '')) {
-            if (playerChoice === '')
-            {
-                setPlayerChoice('Scissors');
-            }
-            if (opponentChoice === '')
-            {
-                setOpponentChoice('Scissors');
-            }
+    //     if (seconds === 10 && (playerChoice === '' || opponentChoice === '')) {
+    //         if (playerChoice === '')
+    //         {
+    //             setPlayerChoice('Scissors');
+    //         }
+    //         if (opponentChoice === '')
+    //         {
+    //             setOpponentChoice('Scissors');
+    //         }
 
-        }
+    //     }
     
-        return () => clearInterval(interval);
-      }, [seconds]);
+    //     return () => clearInterval(interval);
+    //   }, [seconds, opponentChoice, playerChoice]);
 
     return(
         <>
+            {oponnentExists? 
             <div>
-                <button name = 'gameButton' value = "Rock">
+                <button name = 'gameButton' onClick={() => SendGameMessage("Rock")} value = "Rock">
                     Rock
                 </button>
-                <button name = 'gameButton' value = "Paper">
+                <button name = 'gameButton' onClick={() => SendGameMessage("Paper")} value = "Paper">
                     Paper
                 </button>
-                <button name = 'gameButton' value = "Scissors">
+                <button name = 'gameButton' onClick={() => SendGameMessage("Scissors")} value = "Scissors">
                     Scissors
                 </button>
                 {isWaitingForAny
@@ -183,6 +188,12 @@ const GamePage = () => {
                         </>
                 }
             </div>
+            : 
+            <div>
+                <p>Waiting for oponnent</p>
+            </div>
+            }
+            
         </>
     )
 }

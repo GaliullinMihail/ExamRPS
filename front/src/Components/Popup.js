@@ -21,7 +21,7 @@ const Popup = ({ onClose }) => {
       return;
     }
 
-    axiosInstance.post('/createGame', { 
+    axiosInstance.post('games/createGame', { 
       MaxRating: parseInt(inputValue,10) 
   }, {
       headers:{

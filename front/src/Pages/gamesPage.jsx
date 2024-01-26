@@ -70,20 +70,22 @@ const GamesPage = () => {
     }, [handleScroll])
 
     const JoinGame = (id) =>  {
-        axiosInstance.post('/joinGame/' + id, {},
+        axiosInstance.post('games/joinGame/' + id, {},
         {
             headers:{
                 Authorization: `Bearer ${token}`,
                 Accept : "application/json"
             }
         }).then(response => {
-            if(response.data.successful)
+            if(!response.data.successful)
             {
                 navigate('/game/' + id)
-                return;
             }
-            alert("вы не можете присоединиться к комнате")
-            console.log(response);
+            else
+            {
+                alert("вы не можете присоединиться к комнате")
+            }
+            
         })
     }
 

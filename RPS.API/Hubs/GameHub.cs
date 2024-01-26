@@ -6,6 +6,7 @@ using RPS.Application.Features.Room.GetRoomById;
 using RPS.Application.Features.User.GetUserById;
 using RPS.Domain.Enums;
 using RPS.Shared.GameResult;
+using RPS.Shared.StaticData;
 
 namespace RPS.API.Hubs
 {
@@ -13,23 +14,21 @@ namespace RPS.API.Hubs
     {
         private readonly IBus _bus;
         private readonly IMediator _mediator;
-        private readonly Dictionary<string, List<string>> _connections;
 
         public GameHub(IMediator mediator, IBus bus)
         {
             _mediator = mediator;
             _bus = bus;
-            _connections = new();
         }
 
         public async Task ConnectToRoom(string roomId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-            if (!_connections.ContainsKey(roomId))
-                _connections[roomId] = new List<string>();
-            _connections[roomId].Add(Context.ConnectionId);
+            if (!StaticData.GameHubConnections.ContainsKey(roomId))
+                StaticData.GameHubConnections[roomId] = new List<string>();
+            StaticData.GameHubConnections[roomId].Add(Context.ConnectionId);
             
-            if (_connections[roomId].Count == 2)
+            if (StaticData.GameHubConnections[roomId].Count == 2)
                 await Clients.Group(roomId).SendAsync("StartGame");
         }
 
@@ -43,12 +42,12 @@ namespace RPS.API.Hubs
             if (room!.FirstPlayerId != userId && room.SecondPlayerId != userId)
                 return;
 
-            foreach (var connectionId in _connections[roomId])
+            foreach (var connectionId in StaticData.GameHubConnections[roomId])
             {
                 await Groups.RemoveFromGroupAsync(connectionId, roomId);
             }
             
-            _connections.Remove(roomId);
+            StaticData.GameHubConnections.Remove(roomId);
 
             await _mediator.Send(new DeleteRoomCommand(roomId));
         }
@@ -91,7 +90,7 @@ namespace RPS.API.Hubs
                         WinnerNickName = secondPlayer!.UserName!,
                         LooserNickName = firstPlayer!.UserName!
                     };
-                    await _bus.Send(gameResult);
+                    // await _bus.Send(gameResult);
                     break;
                 case 0:
                     gameResult = new GameResultDto
@@ -100,7 +99,7 @@ namespace RPS.API.Hubs
                         WinnerNickName = secondPlayer!.UserName!,
                         LooserNickName = firstPlayer!.UserName!
                     };
-                    await _bus.Send(gameResult);
+                    // await _bus.Send(gameResult);
                     break;
                 default:
                     gameResult = new GameResultDto
@@ -109,7 +108,7 @@ namespace RPS.API.Hubs
                         WinnerNickName = firstPlayer!.UserName!,
                         LooserNickName = secondPlayer!.UserName!
                     };
-                    await _bus.Send(gameResult);
+                    // await _bus.Send(gameResult);
                     break;
             }
             await Clients.Group(roomId).SendAsync("ReceiveResultMessage", firstPlayer!.UserName,

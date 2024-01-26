@@ -10,6 +10,7 @@ using RPS.Application.Features.Room.GetAllRooms;
 using RPS.Application.Features.Room.GetRoomById;
 using RPS.Application.Features.Room.JoinRoom;
 using RPS.Application.Features.User.GetUserById;
+using RPS.Shared.Mongo;
 
 namespace RPS.API.Controllers;
 
@@ -89,10 +90,17 @@ public class GameController : Controller
             if (!user.IsSuccess)
                 return Json(new FailResponse(false, "You aren't player", 404));
 
-            var userRating = 
-                (await _mediator.Send(new GetPlayerRatingMongoQuery(user.Value!.UserName!))).Value;
+            // var userRating = 
+            //     (await _mediator.Send(new GetPlayerRatingMongoQuery(user.Value!.UserName!))).Value;
+
+            var userRating = new PlayerRatingDto
+            {
+                Id = "",
+                Key = "",
+                Rating = 0
+            };
             
-            if (room.Value!.SecondPlayerId is not null && room.Value!.MaxRating >= userRating!.Rating)
+            if (room.Value!.SecondPlayerId is null && room.Value!.MaxRating >= userRating!.Rating)
                 await _mediator.Send(new JoinRoomCommand(roomId, user.Value!));
 
             return Json(room.Value);
