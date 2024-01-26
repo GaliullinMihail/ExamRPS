@@ -14,10 +14,18 @@ const GamesPage = () => {
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [games, setGames] = useState([])
     const [loading, setLoading] = useState(false);
-    const uName = jwtDecode(token).Name;
-    const uId = jwtDecode(token).Id;
+    const uName = token? jwtDecode(token).Name: '';
+    const uId = token? jwtDecode(token).Id : '';
 
     useEffect(() => {
+        if (!token){
+            navigate("/login");
+        }
+    }, [navigate, token])
+
+    useEffect(() => {
+        if(!token)
+            return;
         setLoading(true);
         axiosInstance.get(`/getAllRooms/` + numberOfFetches,
         {
@@ -33,12 +41,6 @@ const GamesPage = () => {
         .catch()
             
         }, [numberOfFetches])
-
-    useEffect(() => {
-        if (!token){
-            navigate("/login");
-        }
-    }, [navigate, token])
 
 
     const togglePopup = () => {
