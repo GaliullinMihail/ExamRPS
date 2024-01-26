@@ -67,9 +67,11 @@ const GamePage = () => {
         newConnection.off('ReceiveGameMessage')
         newConnection.off('StartGame')
         newConnection.off('ReceiveResultMessage')
-        // newConnection.off('LeaveFromRoom')
+        newConnection.off('EndGame')
         
-        // newConnection.on('LeaveFromRoom', function())
+        newConnection.on('EndGame', function(){
+            navigate('/games');
+        })
 
         newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
 
@@ -136,9 +138,15 @@ const GamePage = () => {
          }).then(res => {
             setRoom(res.data.value);
             setIsWatcher(uid !== res.data.value.firstPlayerId && uid !== res.data.value.secondPlayerId)
+            try{
             window.addEventListener('beforeunload', () => {
-                connection.invoke('LeaveFromRoom', `${uid}`, `${location.pathname.split('/game/'[0])[2]}`)
+                
+                connection.invoke('LeaveFromRoom', `${uid}`, `${location.pathname.split('/game/'[0])[2]}`).catch()
             })
+            }
+            catch{
+                
+            }
          });
     },[location.pathname, token, callbackSignalR])
 
