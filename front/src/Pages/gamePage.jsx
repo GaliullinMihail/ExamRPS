@@ -24,6 +24,7 @@ const GamePage = () => {
     const [seconds, setSeconds] = useState(0);
     const [oponnentExists, setOponnentExists] = useState(false);
     const [room, setRoom] = useState(null);
+    const [isWatcher, setIsWatcher] = useState(true);
 
     useEffect(() => {
         if (!token){
@@ -73,8 +74,19 @@ const GamePage = () => {
 
 
         newConnection.on("ReceiveGameMessage", function (senderUserId, sign){
-            
-            if (senderUserId !== uid)
+
+            if (isWatcher)
+            {
+                if (senderUserId !== room.firstPlayerId)
+                {
+                    setPlayerChoice(sign);
+                }
+                else
+                {
+                    setOpponentChoice(sign);
+                }
+            } 
+            else if (senderUserId !== uid)
             {
                 setOpponentChoice(sign);
                 console.log('playerChoice null',playerChoice === '')
@@ -136,7 +148,9 @@ const GamePage = () => {
                 Accept : "application/json"
             }
          }).then(res => {
+            console.log(res.data.value);
             setRoom(res.data.value);
+            setIsWatcher(uid !== res.data.value.firstPlayerId && uid !== res.data.value.secondPlayerId)
          });
     },[location.pathname, token, callbackSignalR])
 
@@ -190,6 +204,9 @@ const GamePage = () => {
             <div>
                 {isWaitingForAny
                     ? <div>
+                            {isWatcher? <></>
+                            :
+                            <div> 
                             <button name = 'gameButton' onClick={() => SendGameMessage("Rock")} value = "Rock">
                                 Rock
                             </button>
@@ -200,6 +217,7 @@ const GamePage = () => {
                                 Scissors
                             </button>                       
                             <p>Waiting for players to make a choice...</p>
+                            </div>}
                         </div>
                     : isDraw 
                         ?
@@ -209,7 +227,7 @@ const GamePage = () => {
                         :
                         <>
                             <p className='green'> {winner} is Winner! (+3), choice: {winnerChoice}</p>
-                            <p className='red'> {looser} is Looser! (-1), choise: {winnerChoice === playerChoice ? opponentChoice: playerChoice}</p>
+                            <p className='red'> {looser} is Looser! (-1), choice: {winnerChoice === playerChoice ? opponentChoice: playerChoice}</p>
                         </>
                 }
             </div>
