@@ -39,4 +39,11 @@ public class RoomRepository: IRoomRepository
         room.SecondPlayerId = player.Id;
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task RemoveRoomByIdAsync(string roomId)
+    {
+        var room = await GetByRoomIdAsync(roomId);
+        _dbContext.Rooms.Remove(room!);
+        await _dbContext.SaveChangesAsync();
+    }
 }

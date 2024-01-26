@@ -1,5 +1,6 @@
 ﻿using RPS.Application.Configs;
 using MassTransit;
+using RPS.Application.Services.GameResultConsumer;
 
 namespace RPS.API.ServicesExtensions.MassTransit;
 
@@ -18,6 +19,8 @@ public static class ServiceCollectionExtension
         
         services.AddMassTransit(busConfigurator =>
         {
+            busConfigurator.AddConsumer<GameResultConsumer>();
+            
             busConfigurator.UsingRabbitMq((context, configurator) =>
             {
                 var uri =

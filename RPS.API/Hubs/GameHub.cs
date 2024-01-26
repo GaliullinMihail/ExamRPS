@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using RPS.Application.Features.Room.DeleteRoom;
 using RPS.Application.Features.Room.GetRoomById;
 using RPS.Application.Features.User.GetUserById;
 using RPS.Domain.Enums;
@@ -46,8 +47,10 @@ namespace RPS.API.Hubs
             {
                 await Groups.RemoveFromGroupAsync(connectionId, roomId);
             }
-            // TODO: remove room from DB
+            
             _connections.Remove(roomId);
+
+            await _mediator.Send(new DeleteRoomCommand(roomId));
         }
         
         public async Task SendGameMessage(
@@ -85,15 +88,17 @@ namespace RPS.API.Hubs
                     gameResult = new GameResultDto
                     {
                         Draw = false,
-                        WinnerId = room.SecondPlayerId!,
-                        LooserId = room.FirstPlayerId
+                        WinnerNickName = secondPlayer!.UserName!,
+                        LooserNickName = firstPlayer!.UserName!
                     };
                     await _bus.Send(gameResult);
                     break;
                 case 0:
                     gameResult = new GameResultDto
                     {
-                        Draw = true
+                        Draw = true,
+                        WinnerNickName = secondPlayer!.UserName!,
+                        LooserNickName = firstPlayer!.UserName!
                     };
                     await _bus.Send(gameResult);
                     break;
@@ -101,8 +106,8 @@ namespace RPS.API.Hubs
                     gameResult = new GameResultDto
                     {
                         Draw = false,
-                        WinnerId = room.FirstPlayerId,
-                        LooserId = room.SecondPlayerId!
+                        WinnerNickName = firstPlayer!.UserName!,
+                        LooserNickName = secondPlayer!.UserName!
                     };
                     await _bus.Send(gameResult);
                     break;

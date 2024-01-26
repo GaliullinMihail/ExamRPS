@@ -8,4 +8,5 @@ public interface IRoomRepository
     public Task AddAsync(Room room);
     public Task<Room?> GetByRoomIdAsync(string roomId);
     public Task JoinRoomByIdAsync(string roomId, User player);
+    public Task RemoveRoomByIdAsync(string roomId);
 }
