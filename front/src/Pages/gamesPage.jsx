@@ -23,7 +23,7 @@ const GamesPage = () => {
 
     useEffect(() => {
         setLoading(true);
-        axiosInstance.get(`/getAllRooms/` + numberOfFetches,
+        axiosInstance.get(`/games/getAllRooms/` + numberOfFetches,
         {
            headers:{
                Authorization: `Bearer ${token}`,

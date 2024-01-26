@@ -26,14 +26,21 @@ public class GameController : Controller
     }
 
     [HttpGet]
-    [Route("/getAllRooms/{page}")]
+    [Route("/games/getAllRooms/{page}")]
     public async Task<JsonResult> GetGamesByPage([FromRoute] int page)
     {
         return Json(await _mediator.Send(new GetAllRoomsQuery(page)));
     }
+    
+    [HttpGet]
+    [Route("/games/{roomId}")]
+    public async Task<JsonResult> GetGameById([FromRoute] string roomId)
+    {
+        return Json(await _mediator.Send(new GetRoomByIdQuery(roomId)));
+    }
 
     [HttpPost]
-    [Route("/createGame")]
+    [Route("/games/createGame")]
     public async Task<JsonResult> CreateGame([FromBody] CreateRoomDto model, CancellationToken cancellationToken)
     {
         try
@@ -66,7 +73,7 @@ public class GameController : Controller
     }
 
     [HttpPost]
-    [Route("/joinGame/{roomId}")]
+    [Route("/games/joinGame/{roomId}")]
     public async Task<JsonResult> JoinGame([FromRoute] string roomId)
     {
         try
