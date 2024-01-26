@@ -1,0 +1,56 @@
+version: '3.9'
+services:
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitsa
+      RABBITMQ_DEFAULT_PASS: mypa55w0rd!
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1414:1433"
+    volumes:
+      - ~/apps/mssql/data:/var/lib/mssqlql/data
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: superPuperPassword!15641
+  web:
+    image: back
+    depends_on:
+      - mssql
+      - rabbitmq
+      - mongo
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "4040:80"
+    environment:
+      MessageBroker__Username: rabbitsa
+      MessageBroker__Password: mypa55w0rd!
+      MessageBroker__Hostname: rabbitmq
+      MessageBroker__Port: 5672
+      Mongo__ConnectionString: mongodb://mongo:27017
+      Mongo__DatabaseName: Metadata
+      Mongo__MetadataCollectionName: Metadata
+      ConnectionStrings__RPSDatabase: Data Source=mssql;Initial Catalog=RPSDatabase;User=sa;Password=superPuperPassword!15641;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=true;
+    volumes:
+      - ~/.aspnet/https:/https:ro
+  mongo:
+    hostname: mongo
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./mongo-data:/data/db
+  react:
+    image: front
+    build:
+      context: /front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"

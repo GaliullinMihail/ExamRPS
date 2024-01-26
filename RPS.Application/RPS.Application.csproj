@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+
+
+    <ItemGroup>
+      <PackageReference Include="AspNet.Security.OAuth.Vkontakte" Version="7.0.2" />
+      <PackageReference Include="FluentValidation" Version="11.8.0" />
+      <PackageReference Include="JetBrains.Annotations" Version="10.1.5" />
+      <PackageReference Include="MassTransit.Abstractions" Version="8.1.2-develop.1567" />
+      <PackageReference Include="MediatR" Version="12.1.1" />
+      <PackageReference Include="MongoDB.Driver" Version="2.23.0" />
+      <PackageReference Include="NRedisStack" Version="0.10.1" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
+    </ItemGroup>
+
+
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\RPS.Domain\RPS.Domain.csproj" />
+      <ProjectReference Include="..\RPS.Shared\RPS.Shared.csproj" />
+    </ItemGroup>
+
+
+
+
+
+
+
+</Project>
