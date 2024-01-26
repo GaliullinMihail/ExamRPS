@@ -36,7 +36,7 @@ const RatingPage = () => {
         return (
             <>
             {ratings.map((user, index) => (
-                <div className={index % 2 == 0? "userEven" : "userOdd"}>
+                <div className={index % 2 === 0? "userEven" : "userOdd"}>
                     <span className="index">{index + 1}</span>
                     <span className="login">{user.key}</span>
                     <span className="rating">{user.rating}</span>
